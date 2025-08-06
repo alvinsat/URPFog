@@ -22,6 +22,10 @@ namespace Meryuhi.Rendering
         SerializedDataParameter _noiseScale;
         SerializedDataParameter _noiseScrollSpeed;
 
+        SerializedDataParameter _enableExclusionZones;
+        SerializedDataParameter _exclusionZoneColliders;
+        SerializedDataParameter _exclusionZoneSmoothing;
+
 
         public override void OnEnable()
         {
@@ -42,6 +46,10 @@ namespace Meryuhi.Rendering
             _noiseIntensity = Unpack(o.Find(x => x.noiseIntensity));
             _noiseScale = Unpack(o.Find(x => x.noiseScale));
             _noiseScrollSpeed = Unpack(o.Find(x => x.noiseScrollSpeed));
+
+            _enableExclusionZones = Unpack(o.Find(x => x.enableExclusionZones));
+            _exclusionZoneColliders = Unpack(o.Find(x => x.exclusionZoneColliders));
+            _exclusionZoneSmoothing = Unpack(o.Find(x => x.exclusionZoneSmoothing));
         }
 
         public override void OnInspectorGUI()
@@ -89,6 +97,14 @@ namespace Meryuhi.Rendering
                 PropertyField(_noiseIntensity);
                 PropertyField(_noiseScale);
                 PropertyField(_noiseScrollSpeed);
+            }
+
+            // Exclusion Zones
+            PropertyField(_enableExclusionZones);
+            if (_enableExclusionZones.value.boolValue)
+            {
+                PropertyField(_exclusionZoneColliders);
+                PropertyField(_exclusionZoneSmoothing);
             }
         }
     }
