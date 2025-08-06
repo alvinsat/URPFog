@@ -104,6 +104,20 @@ namespace Meryuhi.Rendering
         public FullScreenFogNoiseModeParameter(FullScreenFogNoiseMode value, bool overrideState = false) : base(value, overrideState) { }
     }
 
+    /// <summary>
+    /// A <see cref="VolumeParameter"/> that holds an array of <see cref="Collider"/> values.
+    /// </summary>
+    [Serializable]
+    public sealed class ColliderArrayParameter : VolumeParameter<Collider[]>
+    {
+        /// <summary>
+        /// Create a new <see cref="ColliderArrayParameter"/> instance.
+        /// </summary>
+        /// <param name="value">The initial value to store in the parameter.</param>
+        /// <param name="overrideState">The initial override state for the parameter.</param>
+        public ColliderArrayParameter(Collider[] value, bool overrideState = false) : base(value, overrideState) { }
+    }
+
 
     /// <summary>
     /// A volume component that holds settings for the Full Screen Fog effect.
@@ -193,6 +207,23 @@ namespace Meryuhi.Rendering
         /// </summary>
         [Tooltip("Scrolling speed of the noise.")]
         public Vector2Parameter noiseScrollSpeed = new(Vector2.one);
+
+        [Header("Exclusion Zones")]
+        /// <summary>
+        /// Enable exclusion zones to prevent fog rendering in specific areas.
+        /// </summary>
+        [Tooltip("Enable exclusion zones to prevent fog rendering in specific areas.")]
+        public BoolParameter enableExclusionZones = new(false);
+        /// <summary>
+        /// Colliders that define areas where fog should not be rendered.
+        /// </summary>
+        [Tooltip("Colliders that define areas where fog should not be rendered.")]
+        public ColliderArrayParameter exclusionZoneColliders = new(null);
+        /// <summary>
+        /// Smoothness of the exclusion zone edges.
+        /// </summary>
+        [Tooltip("Smoothness of the exclusion zone edges.")]
+        public ClampedFloatParameter exclusionZoneSmoothing = new(0.1f, 0f, 1f);
 
         /// <inheritdoc/>
         public bool IsActive()
