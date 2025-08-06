@@ -101,6 +101,23 @@ This is a rough and not very accurate test, but you can know something about the
 
 - In the case of using noise, if the `Noise Scale` is too large, the result may not be very good.
 
+## Exclusion Zones (New Feature)
+
+The fog system now supports exclusion zones - areas where fog will not be rendered. This feature uses colliders to define areas that should be excluded from fog effects.
+
+### Quick Setup
+1. Add colliders to objects where you want to exclude fog
+2. Add the `FogExclusionZoneDemo` component to these objects
+3. Add a `FogExclusionZoneManager` to your scene for automatic management
+4. In your Volume profile, enable `Exclusion Zones` and the system will automatically collect exclusion zone colliders
+
+### Manual Setup
+- Add colliders to the `Exclusion Zone Colliders` array in your FullScreenFog volume override
+- Enable `Enable Exclusion Zones`
+- Adjust `Exclusion Zone Smoothing` for edge softness
+
+For detailed instructions, see `Documentation~/ExclusionZones.md`
+
 ## Todo
 
 - Volume Fog

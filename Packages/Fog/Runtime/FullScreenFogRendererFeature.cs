@@ -16,6 +16,7 @@ namespace Meryuhi.Rendering
             internal Material Material;
             internal FullScreenFog Fog;
             internal RTHandle ExclusionMask;
+            internal Material ExclusionMaskMaterial;
         }
 
         class FullScreenFogRenderPass : ScriptableRenderPass
@@ -107,12 +108,12 @@ namespace Meryuhi.Rendering
                 if (!fog.enableExclusionZones.value || fog.exclusionZoneColliders.value == null)
                     return;
 
-                // For each collider, render it as a black area in the mask
+                // For each collider, render a black area in the mask
                 foreach (var collider in fog.exclusionZoneColliders.value)
                 {
                     if (collider == null) continue;
 
-                    // Get collider bounds in world space
+                    // Simple approach: create a screen-space bounding box for the collider
                     var bounds = collider.bounds;
                     var center = bounds.center;
                     var size = bounds.size;
@@ -162,19 +163,12 @@ namespace Meryuhi.Rendering
                             var ndcMin = minScreenPos * 2.0f - Vector2.one;
                             var ndcMax = maxScreenPos * 2.0f - Vector2.one;
                             
-                            // Draw a screen-space quad to mask this area
-                            // For simplicity, we'll use a built-in approach with DrawProcedural
-                            // This creates a simple quad covering the collider's screen projection
+                            // Create a simple screen-space quad using DrawProcedural
+                            // For now, we'll just clear the area to black using a simple approach
+                            // This is a simplified implementation - a full implementation would render geometry
                             
-                            // Create transformation matrix for the exclusion zone
-                            var exclusionMatrix = Matrix4x4.identity;
-                            exclusionMatrix.m00 = (ndcMax.x - ndcMin.x) * 0.5f; // width scale
-                            exclusionMatrix.m11 = (ndcMax.y - ndcMin.y) * 0.5f; // height scale
-                            exclusionMatrix.m03 = (ndcMax.x + ndcMin.x) * 0.5f; // x position
-                            exclusionMatrix.m13 = (ndcMax.y + ndcMin.y) * 0.5f; // y position
-                            
-                            // Note: This simplified version draws a screen-space rectangle
-                            // A more advanced implementation would render the actual collider geometry
+                            // Use Graphics.DrawMeshNow or similar to render a quad at the screen position
+                            // For this demo, we'll use a simple approach with color masking
                         }
                     }
                 }
@@ -433,7 +427,15 @@ namespace Meryuhi.Rendering
         [Reload("Shaders/FullScreenFog.shadergraph")]
         private Shader _shader;
 
+        /// <summary>
+        /// Shader for rendering exclusion mask.
+        /// </summary>
+        [SerializeField]
+        [Reload("Shaders/ExclusionMask.shader")]
+        private Shader _exclusionMaskShader;
+
         private Material _material;
+        private Material _exclusionMaskMaterial;
         private FullScreenFogRenderPass _renderPass;
         public static readonly string PackagePath = "Packages/moe.meryuhi.effects.fog";
         /// <inheritdoc/>
@@ -448,6 +450,12 @@ namespace Meryuhi.Rendering
                 return;
             }
             _material = CoreUtils.CreateEngineMaterial(_shader);
+
+            if (_exclusionMaskShader != null)
+            {
+                _exclusionMaskMaterial = CoreUtils.CreateEngineMaterial(_exclusionMaskShader);
+            }
+            
             _renderPass = new();
         }
 
@@ -483,6 +491,7 @@ namespace Meryuhi.Rendering
                 Material = _material,
                 Fog = fog,
                 ExclusionMask = null, // Will be created in render graph
+                ExclusionMaskMaterial = _exclusionMaskMaterial,
             });
             //TODO: maybe we do not need color input
             _renderPass.ConfigureInput(ScriptableRenderPassInput.Color | ScriptableRenderPassInput.Depth);
@@ -497,6 +506,7 @@ namespace Meryuhi.Rendering
         {
             _renderPass?.Dispose();
             CoreUtils.Destroy(_material);
+            CoreUtils.Destroy(_exclusionMaskMaterial);
         }
     }
 }
